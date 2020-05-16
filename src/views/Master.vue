@@ -44,7 +44,7 @@ export default {
     data : function(){
         return {
             search:'',
-            headers:[{text:'Name',value:'name'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'Charger',value:'charger'},{text:'SD Card',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Others',value:'others'},{text:'Collected By',value:'collectedBy'}],
+            headers:[{text:'Name',value:'name'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'Charger',value:'charger'},{text:'SDCard',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Others',value:'others'},{text:'CollectedBy',value:'collectedBy'}],
             inventory : this.$store.state.inventory
         }
     },

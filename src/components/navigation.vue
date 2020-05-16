@@ -41,7 +41,9 @@ export default {
             drawer:false,
             links : [
                 {icon:'dashboard',text:'Dashboard', route:'/'},
-                {icon:'',text:'Masters', route:'/master'},
+                {icon:'add_to_queue',text:'Allotments', route:'/allot'},
+                {icon:'folder_open',text:'Masters', route:'/master'},
+               
                // {icon:'dashboard',text:'Dashboard', route:'/d'},
 
             ]
