@@ -1,7 +1,8 @@
 <template>
 <div>
     
-<v-btn class="d-flex ml-auto primary waves-effect" @click="dialog = !dialog"> <v-icon>add</v-icon></v-btn>
+     
+<v-btn class="d-flex ml-auto primary waves-effect" small @click="dialog = !dialog"> <v-icon>add</v-icon></v-btn>
 <v-row justify="start">
     <v-dialog
         v-model="dialog"
@@ -17,7 +18,7 @@
         <v-card-text>
             <v-container>
                 <v-row>
-                    <v-text-field label="Member Name" v-model="items.owner.name" required></v-text-field>
+                    <v-text-field label="Member Name" v-model="owner.name" required></v-text-field>
                 </v-row>
                
                
@@ -43,7 +44,7 @@
                 </v-card>
 
                 <v-row justify="center">
-                    <v-btn color="success" @click="submit()"> <v-icon>store</v-icon> Submit</v-btn>
+                    <v-btn color="success" :loading="loading" @click="submit()"> <v-icon>store</v-icon> Submit</v-btn>
                 </v-row>
 
 
@@ -65,7 +66,8 @@
 </template>
 
 <script>
-
+import db from '@/firebase'
+//const db ={}
 export default {
     props : {
        
@@ -74,8 +76,9 @@ export default {
       
         return {
             dialog:false,
+            owner : {name:''},
+            loading:false,
             items :{
-                owner : {name:""},
                 camera :{text:'Camera',data:[]},
                 lenses :{text:'Lenses',data:[]}, 
                 battery :{text:'Battery',data:[]},
@@ -94,19 +97,51 @@ export default {
                return a.id!=obj.id
             })
         },
-        submit(){
+       async submit(){
             console.log(this.items)
-            this.$store.commit('addToInventory',this.items)
-            this.items ={
-                owner : {name:""},
-                camera :{text:'Camera',data:[]},
-                lenses :{text:'Lenses',data:[]}, 
-                battery :{text:'Battery',data:[]},
-                sdcard :{text:'SD Card',data:[]},
-                bag :{text:'Bag',data:[]},
-                monopod :{text:'Monopod',data:[]},
-                tripod :{text:'Tripod',data:[]},
+            // this.$store.commit('addToInventory',this.items)
+            // this.items ={
+            //     owner : {name:""},
+            //     camera :{text:'Camera',data:[]},
+            //     lenses :{text:'Lenses',data:[]}, 
+            //     battery :{text:'Battery',data:[]},
+            //     sdcard :{text:'SD Card',data:[]},
+            //     bag :{text:'Bag',data:[]},
+            //     monopod :{text:'Monopod',data:[]},
+            //     tripod :{text:'Tripod',data:[]},
+            // }
+
+            //const item = {};
+            var error= false; let errorMessage=""
+         await Object.keys(this.items).forEach(prop=>{
+
+                this.loading = true   
+                if(this.items[prop].data)
+                {
+                    this.items[prop] = this.items[prop].data
+                    
+                    this.items[prop].map(t=>{
+                        t.owner = this.owner.name;
+                        t.type = prop;
+                      db.collection('Item').add(t).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
+                    })
+
+                }
+
+            })
+            this.loading = false;
+            this.dialog = false;
+            if(error)
+            alert(errorMessage)
+            else
+            {
+                this.$emit('inventoryUpdated')
+                console.log('Database Query Successful')
             }
+
+
+
+
         },
         
     },

@@ -1,10 +1,12 @@
 <template>
     <nav >
+     
       <v-app-bar app class="grey lighten-4" flat >
           <v-app-bar-nav-icon class="grey--text" @click="drawer=!drawer"></v-app-bar-nav-icon>
          <v-toolbar-title class="text-uppercase grey--text">
              <span class="font-weight-light">Inventory</span><span >Manager</span>
          </v-toolbar-title>
+      
          <v-spacer></v-spacer>
             <v-btn  color="grey--text"  >
                 <span>Sign Out </span>
@@ -38,6 +40,7 @@ export default {
     
     data : function(){
         return {
+          
             drawer:false,
             links : [
                 {icon:'dashboard',text:'Dashboard', route:'/'},
