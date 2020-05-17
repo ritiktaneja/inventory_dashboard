@@ -1,8 +1,19 @@
 <template>
     <div>
+          <v-snackbar
+          :timeout="2000"
+          top color="primary"
+          v-model="snackbar"
+        >
+          <span class="ma-auto"> Masters updated!</span>
+           
+        </v-snackbar>
         <v-container  class="d-flex">
-        <h2 class="subheading grey--text"> Master </h2>
-         <AddProduct class="ml-auto"/>
+        <h2 class="subheading grey--text"> Masters </h2>
+            <v-spacer></v-spacer>
+            <AddItem class="mx-1" @inventoryUpdated="snackbar=true" />
+            <v-btn color="success mx-2" disabled @click="exportFile()" small > <v-icon>cloud_download</v-icon> </v-btn>
+         
        </v-container>
 
         <v-container class="px-0 d-flex">
@@ -36,46 +47,109 @@
 </template>
 
 <script>
-import AddProduct from '@/components/addProduct'
+import db from '@/firebase'
+import XLSX from 'xlsx'
+import AddItem from '@/components/addItem'
 export default {
     components: {
-      AddProduct  
+      AddItem  
     },
     data : function(){
         return {
+            snackbar:false,
             search:'',
             headers:[{text:'Name',value:'name'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'Charger',value:'charger'},{text:'SDCard',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Others',value:'others'},{text:'CollectedBy',value:'collectedBy'}],
-            inventory : this.$store.state.inventory
+            inventory : []
         }
     },
+    created () 
+    {
+        this.getInventory()
+         
+       
+        db.collection('Item').onSnapshot(res => {
+            const changes = res.docChanges()
+
+            changes.forEach(change=>{
+                 if(change.type==='added')
+                 this.inventory.push({
+                     ...change.doc.data()
+                     
+                 })
+                 console.log('check')
+            })
+        })
+    },
+    mounted :function() {
+      
+    },
+    methods:{
+        async getInventory()
+        {
+
+        const snapshot = await db.collection('Item').get()
+          this.inventory = snapshot.docs.map(doc => doc.data());
+          
+        },
+         exportFile() {
+            
+            var aoo = this.filteredInventory
+                //converting aoo to aoa
+
+            var aoa=[["Owner","Camera","Lenses","Battery","SD Card","Bag","Monopod","Tripod"]]
+                aoo.forEach(t=>{
+                    let arr = [t.owner,t.camera,t.lenses,t.battery,t.sdcard,t.bag,t.monopod,t.tripod]
+                    aoa.push(arr)
+                })
+
+            const wb = XLSX.utils.book_new()
+            const wsAll = XLSX.utils.aoa_to_sheet()
+                XLSX.utils.book_append_sheet(wb, wsAll, "Inventory Data")
+                XLSX.writeFile(wb, "DoPy Inventory.xlsx")
+        }
+    },
+
     computed :{
     filteredInventory(){
-        var i = this.inventory.map(perUser => {
+            //inventory format
+        // var inventory =[{type:'camera', owner : 'Ritik',manufacturer :'Canon',desc:'700d' },
+        //             {type:'camera', owner : 'Ritik',manufacturer :'Nikon',desc:'d5600' },
+        //             {type:'lenses', owner : 'Ritik',manufacturer :'Canon',desc:'18-55mm' },
+        //             {type:'camera', owner : 'Taneja',manufacturer :'Canon',desc:'700d' },
+        //             {type:'camera', owner : 'Taneja',manufacturer :'Nikon',desc:'d5600' },
+        //             {type:'lenses', owner : 'Taneja',manufacturer :'Canon',desc:'18-55mm' }]
+        
+        // var updatedInventory = [{name:'dd',camera:['','']}]
+        var updatedInventory={}
 
-            //Extracting each entry object from main array
-            Object.keys(perUser).forEach(prop =>{
-                //Modifying each attribute of object
-                if(perUser[prop].data)
-                   { 
-                    //converting object to array
-                    perUser[prop] = perUser[prop].data
-                    //converting array of objects to array of strings
-                     perUser[prop] = perUser[prop].map(t=> {
-                        
-                        return t.desc+" "+t.manufacturer
-                    })
-                  } 
-            })
-             perUser.name = perUser['owner'].name;
-           
-             return perUser;
+        this.inventory.forEach(i=>{
+            if(!updatedInventory[i.owner])
+                updatedInventory[i.owner]=[]
+            if(!updatedInventory[i.owner][i.type])
+                updatedInventory[i.owner][i.type] = []
 
-           
+           updatedInventory[i.owner][i.type].push(i.manufacturer + i.desc)
+
         })
 
-        
+        //updatedInventory Format = {user1 :[camera :[string,string],lenses :[string,] ]}
+       // console.log(updatedInventory)
 
-         return i;
+        var finalArray =[]
+
+        Object.keys(updatedInventory).forEach(userWise=>{
+          
+           
+          
+             var obj = {name:userWise,...updatedInventory[userWise]};
+
+           // console.log(obj,'%$%')
+            finalArray.push(obj)
+
+        })
+        //finalArray format = [{owner:user1,camera:[string,string],lenses:[string,string]},{owner:user2,camera:[],...}]
+       
+        return finalArray
 
     }
     }
