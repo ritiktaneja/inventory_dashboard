@@ -15,12 +15,12 @@
                 </thead>
                 <tbody>
                     <tr  v-for="a in allotmentData" :key="a.id" :class="a['collectedBy']?'striked':''" >
-                        <td @click="$event.target.classList.toggle('striked')" v-for="h in headers" :key="h.value" :class="a[h.value]?'':'grey lighten-2'">
+                        <td v-for="h in headers" :key="h.value" :class="a[h.value]?'':'grey lighten-2'">
                           {{typeof a[h.value] == 'object' ? a[h.value].join(", "):a[h.value]}}
                           
                         </td>
                         <td v-if="!a['collectedBy']" >
-                            <v-btn small color="success" @click="collectItem(a['id'])"> <v-icon>check</v-icon> Collect Now</v-btn>
+                            <CollectInventory :object="a"/>
                         </td>
                         <td v-else>
                               {{a.collectedBy}}
@@ -54,6 +54,7 @@
 
 <script>
 import db from '@/firebase'
+import CollectInventory from './collectInventory'
 export default {
 
     data : function(){
@@ -70,6 +71,9 @@ export default {
                 
             }
         }
+   },
+   components : {
+       CollectInventory,
    },
    mounted: function() 
    {
@@ -101,22 +105,7 @@ export default {
             .map(doc => {var data = doc.data(); data.id = doc.id; data.datetime= new Date(data.datetime).toGMTString(); return data })
             
        },
-      async collectItem(id,name)
-       {    
-          
-           var docRef  = db.collection('Allotment').doc(id.toString())
-           prompt('Collecting '+name+'\'s entry. Please confirm.')
-            await  docRef.update({
-                collectedBy:'Inventory'
-            })
-            .then(()=>{
-                console.log('Successfully collected')
-            })
-            .catch(err=>{
-                alert('Error occured with code : '+err)
-            })
-
-       }
+    
      
    },
    computed : {

@@ -22,21 +22,21 @@
            </v-row>
 
             <v-row >
-            <v-select label="Camera" autocomplete="off"  v-model="newAllotment.camera" :items="getNameArray('camera')" class="mx-5" multiple small-chips/>
-            <v-select label="Lenses"  v-model="newAllotment.lenses" :items="getNameArray('lenses')" class="mx-5" multiple small-chips/>  
+            <v-select label="Camera" autocomplete="off"  v-model="newAllotment.camera" :items="items['camera']" class="mx-5" multiple small-chips/>
+            <v-select label="Lenses"  v-model="newAllotment.lenses" :items="items['lenses']" class="mx-5" multiple small-chips/>  
            </v-row>
            <v-row>
-               <v-select label="Battery"  v-model="newAllotment.battery" :items="getNameArray('battery')" class="mx-5" multiple small-chips/>
-               <v-select label="SD Card"  v-model="newAllotment.sdcard" :items="getNameArray('sdcard')" class="mx-5" multiple small-chips/>
-               <v-select label="Bag"  v-model="newAllotment.bag" class="mx-5" :items="getNameArray('bag')" multiple small-chips/>
+               <v-select label="Battery"  v-model="newAllotment.battery" :items="items['battery']" class="mx-5" multiple small-chips/>
+               <v-select label="SD Card"  v-model="newAllotment.sdcard" :items="items['sdcard']" class="mx-5" multiple small-chips/>
+               <v-select label="Bag"  v-model="newAllotment.bag" class="mx-5" :items="items['bag']" multiple small-chips/>
            </v-row>
             <v-row>
-               <v-select label="Monopod"  v-model="newAllotment.monopod" :items="getNameArray('monopod')" class="mx-5" multiple small-chips/>
-               <v-select label="Tripod"  v-model="newAllotment.tripod" :items="getNameArray('tripod')" class="mx-5" multiple small-chips/>
+               <v-select label="Monopod"  v-model="newAllotment.monopod" :items="items['monopod']" class="mx-5" multiple small-chips/>
+               <v-select label="Tripod"  v-model="newAllotment.tripod" :items="items['tripod']" class="mx-5" multiple small-chips/>
             </v-row>
              <v-row>
-               <v-select label="lenscap"  v-model="newAllotment.lenscap" :items="getNameArray('lenscap')" class="mx-5" multiple small-chips/>
-               <v-select label="back cover"  v-model="newAllotment.backcover" :items="getNameArray('back cover')" class="mx-5" multiple small-chips/>
+               <v-select label="lenscap"  v-model="newAllotment.lenscap" :items="items['lenscap']" class="mx-5" multiple small-chips/>
+               <v-select label="back cover"  v-model="newAllotment.backcover" :items="items['back cover']" class="mx-5" multiple small-chips/>
                <v-text-field label="Others"  v-model="newAllotment.others"  class="mx-5" multiple small-chips/>
             </v-row>
             <v-row justify="center">
@@ -62,7 +62,7 @@ export default {
     data: function(){
       
         return {
-            dialog:true,
+            dialog:false,
             owner : {name:''},
             loading:false,
             newAllotment:{
@@ -75,6 +75,9 @@ export default {
                 bag:[],
                 tripod:[],
                 monopod:[],
+                lenscap:[],
+                backcover:[],
+                others:[],
                 datetime:""
             },
             items:{}
@@ -109,7 +112,14 @@ export default {
             var error= false; let errorMessage=""
          
                     this.newAllotment.datetime=Date.now()    
+                    var t = this.newAllotment
+                    var arr = [...t.camera,...t.lenses,...t.battery,...t.sdcard,...t.bag,...t.monopod,...t.tripod,...t.lenscap,...t.backcover,...t.others]
+                   await arr.forEach(async a=>{
+                     await db.collection('currentAllotment').add({'item':a}).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
+                    })
+                    
                     await db.collection('Allotment').add(this.newAllotment).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
+                    
                     
 
          
@@ -131,27 +141,41 @@ export default {
             {
                 const snapshot = await db.collection('Item').get()
                 this.items = {}
-                snapshot.docs.forEach(doc => {
+                snapshot.docs.forEach(async doc => {
                     doc = doc.data()
-                    var name = doc.owner + " " + doc.desc;
+                   
                     if(!this.items[doc.type])
                     this.items[doc.type] = []
+                    var name = doc.id;
+                    if(name)
+                    {
+                    name= name.toString()
                     
-                  //  console.log('doc = '+doc, "this.items : "+this.items)
-                    this.items[doc.type].push({name:name,id:doc.id})
+                   
+                    var flag=true;
+                    const snapshot2 = await db.collection("currentAllotment").get();
+                    snapshot2.docs.forEach(x=> {
+                        x=x.data()
+
+                        if(x.item == name)
+                        flag = false
+                    })
+
+
+                    if(flag)
+                    this.items[doc.type].push(name)
+                    }    
+
+
+                    
+                   
+                     
                    // console.log('doc = '+doc, "this.items : "+this.items)
                     
                 })
                 // console.log("items : "+JSON.stringify(this.items))
             },
-            getNameArray(s)
-            {
-                var arr=[]
-                if(this.items[s])
-                arr = this.items[s].map(s=>s.name)
-
-                return arr;
-            }
+            
         
     },
     watch :{

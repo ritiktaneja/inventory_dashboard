@@ -29,16 +29,18 @@
                         <v-col class="mx-0 px-0" :cols="3" >
                         <v-text-field label="Manufacturer" v-model="obj.manufacturer" autocomplete required></v-text-field>
                         </v-col>
-                        <v-col class="d-flex" :cols="5" >
+                        <v-col class="d-flex" :cols="4" >
                         <v-text-field label="Description" v-model="obj.desc" required></v-text-field>
                         </v-col>
-                       
+                        <v-col class="d-flex" :cols="4">
+                            <v-text-field label="unique ID"  :value="owner.name+'-'+obj.manufacturer+'-'+obj.desc"   required></v-text-field>
+                        </v-col>
                         <v-col :cols="1"  class=" offset-1 ">
                             <a flat color="transparent grey--text " @click="object.data = removeObject(object.data,obj)"><v-icon class="mt-4">close</v-icon> </a>
                         </v-col>
                     </v-row>
                     <v-row justify="center" class="my-3">
-                    <v-btn small color="primary justify-center" @click="object.data.push({id:Date.now(),manufacturer:'',desc:''})"> <v-icon>add</v-icon></v-btn>
+                    <v-btn small color="primary justify-center" @click="object.data.push({id:'',manufacturer:'',desc:''})"> <v-icon>add</v-icon></v-btn>
                     </v-row>
                     <v-divider/>
                 </v-card>
@@ -89,6 +91,7 @@ export default {
         }
     },
     methods: {
+      
          removeObject(arr,obj)
         {
             return arr.filter((a)=>{
@@ -121,7 +124,8 @@ export default {
                     this.items[prop].map(t=>{
                         t.owner = this.owner.name;
                         t.type = prop;
-                        t.collectedBy = this.collectedBy    ;
+                        t.collectedBy = this.collectedBy;
+                        t.id = t.owner+'-'+t.manufacturer+'-'+t.desc
                       db.collection('Item').add(t).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
                     })
 

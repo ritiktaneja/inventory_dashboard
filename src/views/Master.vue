@@ -145,7 +145,7 @@ export default {
           
              var obj = {name:userWise,...updatedInventory[userWise]};
 
-            console.log(obj,'%$%')
+          
             finalArray.push(obj)
 
         })
