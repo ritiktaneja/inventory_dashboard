@@ -17,22 +17,27 @@
         <v-divider></v-divider>
         <v-card-text>
            <v-row class="d-flex">
-            <v-combobox width="50" :rules="['required']" required v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
-            <v-combobox label="Event"  :rules="['required']" v-model="newAllotment.event" class="mx-5" small-chips/>
+            <v-text-field width="50"  required v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
+            <v-text-field label="Event" v-model="newAllotment.event" class="mx-5" small-chips/>
            </v-row>
 
             <v-row >
-            <v-combobox label="Camera" autocomplete="off"  v-model="newAllotment.camera" :items="getNameArray('camera')" class="mx-5" multiple small-chips/>
-            <v-combobox label="Lenses"  v-model="newAllotment.lenses" :items="getNameArray('lenses')" class="mx-5" multiple small-chips/>  
+            <v-select label="Camera" autocomplete="off"  v-model="newAllotment.camera" :items="getNameArray('camera')" class="mx-5" multiple small-chips/>
+            <v-select label="Lenses"  v-model="newAllotment.lenses" :items="getNameArray('lenses')" class="mx-5" multiple small-chips/>  
            </v-row>
            <v-row>
-               <v-combobox label="Battery"  v-model="newAllotment.battery" :items="getNameArray('battery')" class="mx-5" multiple small-chips/>
-               <v-combobox label="SD Card"  v-model="newAllotment.sdcard" :items="getNameArray('sdcard')" class="mx-5" multiple small-chips/>
-               <v-combobox label="Bag"  v-model="newAllotment.bag" class="mx-5" :items="getNameArray('bag')" multiple small-chips/>
+               <v-select label="Battery"  v-model="newAllotment.battery" :items="getNameArray('battery')" class="mx-5" multiple small-chips/>
+               <v-select label="SD Card"  v-model="newAllotment.sdcard" :items="getNameArray('sdcard')" class="mx-5" multiple small-chips/>
+               <v-select label="Bag"  v-model="newAllotment.bag" class="mx-5" :items="getNameArray('bag')" multiple small-chips/>
            </v-row>
             <v-row>
-               <v-combobox label="Monopod"  v-model="newAllotment.monopod" :items="getNameArray('monopod')" class="mx-5" multiple small-chips/>
-               <v-combobox label="Tripod"  v-model="newAllotment.tripod" :items="getNameArray('tripod')" class="mx-5" multiple small-chips/>
+               <v-select label="Monopod"  v-model="newAllotment.monopod" :items="getNameArray('monopod')" class="mx-5" multiple small-chips/>
+               <v-select label="Tripod"  v-model="newAllotment.tripod" :items="getNameArray('tripod')" class="mx-5" multiple small-chips/>
+            </v-row>
+             <v-row>
+               <v-select label="lenscap"  v-model="newAllotment.lenscap" :items="getNameArray('lenscap')" class="mx-5" multiple small-chips/>
+               <v-select label="back cover"  v-model="newAllotment.backcover" :items="getNameArray('back cover')" class="mx-5" multiple small-chips/>
+               <v-text-field label="Others"  v-model="newAllotment.others"  class="mx-5" multiple small-chips/>
             </v-row>
             <v-row justify="center">
             <v-btn color="primary" type="submit" @click="submit()"> <v-icon>create</v-icon> Allot</v-btn>
