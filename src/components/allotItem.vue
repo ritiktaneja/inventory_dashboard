@@ -17,25 +17,25 @@
         <v-divider></v-divider>
         <v-card-text>
            <v-row class="d-flex">
-            <v-combobox width="50" v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
-            <v-combobox label="Event"  v-model="newAllotment.event" class="mx-5" small-chips/>
+            <v-combobox width="50" :rules="['required']" required v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
+            <v-combobox label="Event"  :rules="['required']" v-model="newAllotment.event" class="mx-5" small-chips/>
            </v-row>
 
             <v-row >
-            <v-combobox label="Camera"  v-model="newAllotment.camera" :items="['canon 700d','canon 1300d','canon 80d']" class="mx-5" multiple small-chips/>
-            <v-combobox label="Lenses"  v-model="newAllotment.lenses" :items="[]" class="mx-5" multiple small-chips/>  
+            <v-combobox label="Camera" autocomplete="off"  v-model="newAllotment.camera" :items="getNameArray('camera')" class="mx-5" multiple small-chips/>
+            <v-combobox label="Lenses"  v-model="newAllotment.lenses" :items="getNameArray('lenses')" class="mx-5" multiple small-chips/>  
            </v-row>
            <v-row>
-               <v-combobox label="Battery"  v-model="newAllotment.battery" class="mx-5" multiple small-chips/>
-               <v-combobox label="SD Card"  v-model="newAllotment.sdcard" class="mx-5" multiple small-chips/>
-               <v-combobox label="Bag"  v-model="newAllotment.bag" class="mx-5" multiple small-chips/>
+               <v-combobox label="Battery"  v-model="newAllotment.battery" :items="getNameArray('battery')" class="mx-5" multiple small-chips/>
+               <v-combobox label="SD Card"  v-model="newAllotment.sdcard" :items="getNameArray('sdcard')" class="mx-5" multiple small-chips/>
+               <v-combobox label="Bag"  v-model="newAllotment.bag" class="mx-5" :items="getNameArray('bag')" multiple small-chips/>
            </v-row>
             <v-row>
-               <v-combobox label="Monopod"  v-model="newAllotment.monopod" class="mx-5" multiple small-chips/>
-               <v-combobox label="Tripod"  v-model="newAllotment.tripod" class="mx-5" multiple small-chips/>
+               <v-combobox label="Monopod"  v-model="newAllotment.monopod" :items="getNameArray('monopod')" class="mx-5" multiple small-chips/>
+               <v-combobox label="Tripod"  v-model="newAllotment.tripod" :items="getNameArray('tripod')" class="mx-5" multiple small-chips/>
             </v-row>
             <v-row justify="center">
-            <v-btn color="primary" @click="submit()"> <v-icon>create</v-icon> Allot</v-btn>
+            <v-btn color="primary" type="submit" @click="submit()"> <v-icon>create</v-icon> Allot</v-btn>
             </v-row>
         </v-card-text>
     </v-card>
@@ -57,7 +57,7 @@ export default {
     data: function(){
       
         return {
-            dialog:false,
+            dialog:true,
             owner : {name:''},
             loading:false,
             newAllotment:{
@@ -71,9 +71,13 @@ export default {
                 tripod:[],
                 monopod:[],
                 datetime:""
-            }
+            },
+            items:{}
 
         }
+    },
+    mounted : function() {
+        this.setItems()
     },
     methods: {
          removeObject(arr,obj)
@@ -118,6 +122,31 @@ export default {
 
 
         },
+        async setItems()
+            {
+                const snapshot = await db.collection('Item').get()
+                this.items = {}
+                snapshot.docs.forEach(doc => {
+                    doc = doc.data()
+                    var name = doc.owner + " " + doc.desc;
+                    if(!this.items[doc.type])
+                    this.items[doc.type] = []
+                    
+                  //  console.log('doc = '+doc, "this.items : "+this.items)
+                    this.items[doc.type].push({name:name,id:doc.id})
+                   // console.log('doc = '+doc, "this.items : "+this.items)
+                    
+                })
+                // console.log("items : "+JSON.stringify(this.items))
+            },
+            getNameArray(s)
+            {
+                var arr=[]
+                if(this.items[s])
+                arr = this.items[s].map(s=>s.name)
+
+                return arr;
+            }
         
     },
     watch :{

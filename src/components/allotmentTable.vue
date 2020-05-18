@@ -17,9 +17,10 @@
                     <tr  v-for="a in allotmentData" :key="a.id" :class="a['collectedBy']?'striked':''" >
                         <td @click="$event.target.classList.toggle('striked')" v-for="h in headers" :key="h.value" :class="a[h.value]?'':'grey lighten-2'">
                           {{typeof a[h.value] == 'object' ? a[h.value].join(", "):a[h.value]}}
+                          
                         </td>
-                        <td v-if="!a['collectedBy']" :id="a.id">
-                            <v-btn small color="success"> <v-icon>check</v-icon> Collect Now</v-btn>
+                        <td v-if="!a['collectedBy']" >
+                            <v-btn small color="success" @click="collectItem(a['id'])"> <v-icon>check</v-icon> Collect Now</v-btn>
                         </td>
                         <td v-else>
                               {{a.collectedBy}}
@@ -73,6 +74,9 @@ export default {
    mounted: function() 
    {
      this.getAllotmentData()
+
+   
+     
    },
    created(){
       db.collection('Allotment').onSnapshot(res => {
@@ -84,6 +88,8 @@ export default {
                      ...change.doc.data()
                      
                  })
+                 else 
+                 this.getAllotmentData()
                  
             })
         })
@@ -91,8 +97,34 @@ export default {
    methods:{
       async getAllotmentData(){
              const snapshot = await db.collection('Allotment').get()
-            this.allotmentData = snapshot.docs.map(doc => doc.data())
+            this.allotmentData = snapshot.docs.map(doc => {var data = doc.data(); data.id = doc.id; return data }).sort((a,b)=>{
+                
+                if (a.datetime>b.datetime)
+                    return -1
+                else 
+                    return 1
+            }).map(x=>{
+                x.datetime = new Date(x.datetime).toGMTString();
+                return x;
+            })
+       },
+      async collectItem(id)
+       {    
+          
+           var docRef  = db.collection('Allotment').doc(id.toString())
+           prompt('Are you sure ?')
+            await  docRef.update({
+                collectedBy:'Inventory'
+            })
+            .then(()=>{
+                console.log('Successfully collected')
+            })
+            .catch(err=>{
+                alert('Error occured with code : '+err)
+            })
+
        }
+     
    },
    computed : {
        
