@@ -47,13 +47,6 @@
                     <v-btn color="success" :loading="loading" @click="submit()"> <v-icon>store</v-icon> Submit</v-btn>
                 </v-row>
 
-
-
-
-
-
-
-
             </v-container>  
         </v-card-text>
     </v-card>
@@ -86,7 +79,12 @@ export default {
                 bag :{text:'Bag',data:[]},
                 monopod :{text:'Monopod',data:[]},
                 tripod :{text:'Tripod',data:[]},
-            }
+                lenscap:{text:'Lenscap',data:[]},
+                backcover:{text:'Backcover',data:[]},
+                others:{text:'Others',data:[]},
+                
+            },
+            collectedBy: this.$store.state.username
 
         }
     },
@@ -123,6 +121,7 @@ export default {
                     this.items[prop].map(t=>{
                         t.owner = this.owner.name;
                         t.type = prop;
+                        t.collectedBy = this.collectedBy    ;
                       db.collection('Item').add(t).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
                     })
 
@@ -140,7 +139,19 @@ export default {
             }
 
 
-
+              this.items ={
+                camera :{text:'Camera',data:[]},
+                lenses :{text:'Lenses',data:[]}, 
+                battery :{text:'Battery',data:[]},
+                sdcard :{text:'SD Card',data:[]},
+                bag :{text:'Bag',data:[]},
+                monopod :{text:'Monopod',data:[]},
+                tripod :{text:'Tripod',data:[]},
+                lenscap:{text:'Lenscap',data:[]},
+                backcover:{text:'Backcover',data:[]},
+                others:{text:'Others',data:[]},
+                
+            }
 
         },
         
