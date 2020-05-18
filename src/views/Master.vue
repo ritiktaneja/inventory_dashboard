@@ -58,7 +58,7 @@ export default {
         return {
             snackbar:false,
             search:'',
-            headers:[{text:'Name',value:'name'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'Charger',value:'charger'},{text:'SDCard',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Others',value:'others'},{text:'CollectedBy',value:'collectedBy'}],
+            headers:[{text:'Name',value:'name'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'Charger',value:'charger'},{text:'SDCard',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Lenscap',value:'lenscap'},{text:'BackCover',value:'backcover'},{text:'Others',value:'others'}],
             inventory : []
         }
     },
@@ -76,7 +76,8 @@ export default {
                      ...change.doc.data()
                      
                  })
-                 console.log('check')
+                 else
+                    this.getInventory()
             })
         })
     },
@@ -89,6 +90,7 @@ export default {
 
         const snapshot = await db.collection('Item').get()
           this.inventory = snapshot.docs.map(doc => doc.data());
+         
           
         },
          exportFile() {
@@ -143,7 +145,7 @@ export default {
           
              var obj = {name:userWise,...updatedInventory[userWise]};
 
-           // console.log(obj,'%$%')
+            console.log(obj,'%$%')
             finalArray.push(obj)
 
         })
