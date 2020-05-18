@@ -26,7 +26,8 @@ export default new Vuex.Store({
         tripod :{text:'Tripod',data:[]},
     }
 
-  ]
+  ],
+  username:"Inventory"
   },
   mutations: {
     addToInventory(state,item)

@@ -96,23 +96,16 @@ export default {
    },
    methods:{
       async getAllotmentData(){
-             const snapshot = await db.collection('Allotment').get()
-            this.allotmentData = snapshot.docs.map(doc => {var data = doc.data(); data.id = doc.id; return data }).sort((a,b)=>{
-                
-                if (a.datetime>b.datetime)
-                    return -1
-                else 
-                    return 1
-            }).map(x=>{
-                x.datetime = new Date(x.datetime).toGMTString();
-                return x;
-            })
+             const snapshot = await db.collection('Allotment').orderBy('datetime','asc').get()
+            this.allotmentData = snapshot.docs
+            .map(doc => {var data = doc.data(); data.id = doc.id; data.datetime= new Date(data.datetime).toGMTString(); return data })
+            
        },
-      async collectItem(id)
+      async collectItem(id,name)
        {    
           
            var docRef  = db.collection('Allotment').doc(id.toString())
-           prompt('Are you sure ?')
+           prompt('Collecting '+name+'\'s entry. Please confirm.')
             await  docRef.update({
                 collectedBy:'Inventory'
             })

@@ -6,7 +6,7 @@
     <v-container>
       <v-row>
         
-         <v-col :md="4">
+         <v-col :xs="12" :sm="12" :md="4">
           <v-card  :height="'350px'"  class="transparent ">
             <v-card-title primary-title>
               Masters
@@ -16,7 +16,7 @@
             </v-card-text>
           </v-card>
         </v-col>
-         <v-col :md="4">
+         <v-col class="col-xs-12" :xs="12" :sm="12" :md="4">
           <v-card  :height="'350px'" class="transparent">
            <v-card-title >
              Allotments
@@ -28,7 +28,7 @@
           </v-card>
         </v-col>
 
-         <v-col :md="4">
+         <v-col :xs="12" :sm="12" :md="4">
           <v-card :height="'350px'"  class="transparent">
            <v-card-title>
              Notes
