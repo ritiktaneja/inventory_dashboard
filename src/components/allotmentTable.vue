@@ -14,16 +14,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr  v-for="a in allotmentData" :key="a.id" :class="a['collectedBy']?'striked':''" >
+                    <tr  v-for="a in allotmentData" :key="a.id" :class="a.notCollected == false?'striked':''" >
                         <td v-for="h in headers" :key="h.value" :class="a[h.value]?'':'grey lighten-2'">
-                          {{typeof a[h.value] == 'object' ? a[h.value].join(", "):a[h.value]}}
+                          {{typeof a[h.value] == 'object' ? a[h.value].map(x=> {
+                            if(!x.collectedBy)
+                                a.notCollected = true;
+                             
+                              if(typeof x == 'object' )
+                              return x.name;
+                              else
+                                return x;
+                            
+                          
+                            
+                           
+                         
+                          }).join(", "):a[h.value]}}   
                           
                         </td>
-                        <td v-if="!a['collectedBy']" >
-                            <CollectInventory :object="a"/>
-                        </td>
-                        <td v-else>
-                              {{a.collectedBy}}
+                        <td>                    
+                              <CollectInventory :object="a"/> 
                         </td>
                        
                     </tr>
@@ -62,8 +72,8 @@ export default {
             headers:[{text:'Alloted To',value:'allotedTo'},{text:'Event',value:'event'},{text:'Camera',value:'camera'},{text:'Lenses',value:`lenses`},{text:'Battery',value:'battery'},{text:'Bag',value:'bag'},{text:'SDCard',value:'sdcard'},{text:'Tripod',value:'tripod'},{text:'Monopod',value:'monopod'},{text:'Date & Time',value:'datetime'}],
 
             allotmentData : [
-                {datetime:115500,allotedTo:'Ritik',event:'Quiz',camera:'rt-d5600',battery:'rt-d5600 black',collectedBy:'DoPy'},
-                {datetime:115000,allotedTo:'Ritik',event:'Quiz',camera:'rt-d5600',battery:'rt-d5600 black',bag:'Canon Black'},
+              //{datetime:115500,allotedTo:'Ritik',event:'Quiz',camera:'rt-d5600',battery:'rt-d5600 black',collectedBy:'DoPy'},
+               // {datetime:115000,allotedTo:'Ritik',event:'Quiz',camera:'rt-d5600',battery:'rt-d5600 black',bag:'Canon Black'},
             ],
             newAllotment: {},
             items : {
@@ -83,26 +93,17 @@ export default {
      
    },
    created(){
-      db.collection('Allotment').onSnapshot(res => {
-            const changes = res.docChanges()
+      db.collection('Allotment').onSnapshot(() => {
+        
 
-            changes.forEach(change=>{
-                 if(change.type==='added')
-                 this.allotmentData.push({
-                     ...change.doc.data()
-                     
-                 })
-                 else 
-                 this.getAllotmentData()
-                 
-            })
+           this.getAllotmentData()
         })
    },
    methods:{
       async getAllotmentData(){
              const snapshot = await db.collection('Allotment').orderBy('datetime','asc').get()
             this.allotmentData = snapshot.docs
-            .map(doc => {var data = doc.data(); data.id = doc.id; data.datetime= new Date(data.datetime).toGMTString(); return data })
+            .map(doc => {var data = doc.data(); data.id = doc.id; data.notCollected = false; data.datetime= new Date(data.datetime).toGMTString(); return data })
             
        },
     

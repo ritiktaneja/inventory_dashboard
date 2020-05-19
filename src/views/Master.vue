@@ -67,18 +67,10 @@ export default {
         this.getInventory()
          
        
-        db.collection('Item').onSnapshot(res => {
-            const changes = res.docChanges()
+        db.collection('Item').onSnapshot(()=>{
 
-            changes.forEach(change=>{
-                 if(change.type==='added')
-                 this.inventory.push({
-                     ...change.doc.data()
-                     
-                 })
-                 else
-                    this.getInventory()
-            })
+         this.getInventory()
+
         })
     },
     mounted :function() {
@@ -87,10 +79,10 @@ export default {
     methods:{
         async getInventory()
         {
-
+       
         const snapshot = await db.collection('Item').get()
           this.inventory = snapshot.docs.map(doc => doc.data());
-         
+        
           
         },
          exportFile() {
@@ -123,7 +115,7 @@ export default {
         
         // var updatedInventory = [{name:'dd',camera:['','']}]
         var updatedInventory={}
-
+       
         this.inventory.forEach(i=>{
             if(!updatedInventory[i.owner])
                 updatedInventory[i.owner]=[]
@@ -135,22 +127,19 @@ export default {
         })
 
         //updatedInventory Format = {user1 :[camera :[string,string],lenses :[string,] ]}
-       // console.log(updatedInventory)
+       // console.log(updatedInventory,'here')
 
-        var finalArray =[]
-
+        let finalArray =[]
+       
         Object.keys(updatedInventory).forEach(userWise=>{
-          
-           
-          
+     
              var obj = {name:userWise,...updatedInventory[userWise]};
-
-          
+            
             finalArray.push(obj)
 
         })
         //finalArray format = [{owner:user1,camera:[string,string],lenses:[string,string]},{owner:user2,camera:[],...}]
-       
+      
         return finalArray
 
     }

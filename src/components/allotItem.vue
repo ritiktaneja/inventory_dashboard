@@ -1,9 +1,10 @@
 <template>
-<div>
+<div  >
     
      
 <v-btn class="d-flex ml-auto primary waves-effect" small @click="dialog = !dialog"> <v-icon>add</v-icon> New Allotment</v-btn>
-<v-row justify="start">
+<v-container v-if="dialog" >
+
     <v-dialog
         v-model="dialog"
         scrollable 
@@ -16,9 +17,12 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
+            <v-form ref="form" @submit.prevent="submit()" v-model="formValid">
+                
+            
            <v-row class="d-flex">
-            <v-text-field width="50"  required v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
-            <v-text-field label="Event" v-model="newAllotment.event" class="mx-5" small-chips/>
+            <v-text-field width="50"  :rules="[() => newAllotment.allotedTo.length > 0 || 'Required field']" required v-model="newAllotment.allotedTo" label="Name" class="mx-5" multiple small-chips/>
+            <v-text-field label="Event"  :rules="[() => newAllotment.event.length > 0 || 'Required field']" required v-model="newAllotment.event" class="mx-5" small-chips/>
            </v-row>
 
             <v-row >
@@ -40,15 +44,17 @@
                <v-text-field label="Others"  v-model="newAllotment.others"  class="mx-5" multiple small-chips/>
             </v-row>
             <v-row justify="center">
-            <v-btn color="primary" type="submit" @click="submit()"> <v-icon>create</v-icon> Allot</v-btn>
+            <v-btn color="primary" :disabled="!formValid" type="submit"> <v-icon>create</v-icon> Allot</v-btn>
             </v-row>
+            </v-form>
         </v-card-text>
     </v-card>
 
 
     
     </v-dialog>
-</v-row>
+    
+</v-container>
 </div>
 </template>
 
@@ -63,7 +69,7 @@ export default {
       
         return {
             dialog:false,
-            owner : {name:''},
+            formValid:true,
             loading:false,
             newAllotment:{
                 allotedTo:"",
@@ -83,6 +89,11 @@ export default {
             items:{}
 
         }
+    },
+    created(){
+         db.collection('currentAllotment').onSnapshot(() => {
+           this.setItems()         
+        })
     },
     mounted : function() {
         this.setItems()
@@ -114,8 +125,8 @@ export default {
                     this.newAllotment.datetime=Date.now()    
                     var t = this.newAllotment
                     var arr = [...t.camera,...t.lenses,...t.battery,...t.sdcard,...t.bag,...t.monopod,...t.tripod,...t.lenscap,...t.backcover,...t.others]
-                   await arr.forEach(async a=>{
-                     await db.collection('currentAllotment').add({'item':a}).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
+                    await arr.forEach(async a=>{
+                     await db.collection('currentAllotment').doc(a).set({}).then(()=>{this.error=false}).catch(e=>{this.error = true; this.errorMessage = "Unable to add product! Error code : "+e})
                     })
                     
                     await db.collection('Allotment').add(this.newAllotment).then(()=>{error=false}).catch(e=>{error = true; errorMessage = "Unable to add product! Error code : "+e})
@@ -133,19 +144,19 @@ export default {
                 console.log('Database Query Successful')
             }
 
-
+          
 
 
         },
         async setItems()
             {
+                var ref= this;
                 const snapshot = await db.collection('Item').get()
                 this.items = {}
-                snapshot.docs.forEach(async doc => {
+               await snapshot.docs.forEach(async doc => {
                     doc = doc.data()
+                    
                    
-                    if(!this.items[doc.type])
-                    this.items[doc.type] = []
                     var name = doc.id;
                     if(name)
                     {
@@ -153,25 +164,16 @@ export default {
                     
                    
                     var flag=true;
-                    const snapshot2 = await db.collection("currentAllotment").get();
-                    snapshot2.docs.forEach(x=> {
-                        x=x.data()
-
-                        if(x.item == name)
+                    await db.collection("currentAllotment").doc(name).get().then(d=>{
+                        if(d.exists)
                         flag = false
-                    })
-
-
-                    if(flag)
-                    this.items[doc.type].push(name)
-                    }    
-
-
-                    
+                    });
                    
-                     
-                   // console.log('doc = '+doc, "this.items : "+this.items)
-                    
+                     if(!ref.items[doc.type])
+                    ref.items[doc.type] = []
+                    if(flag)
+                    ref.items[doc.type].push(name)
+                    }      
                 })
                 // console.log("items : "+JSON.stringify(this.items))
             },

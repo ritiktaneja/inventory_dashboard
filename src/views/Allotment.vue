@@ -1,9 +1,17 @@
 <template>
   <v-container>
+     <v-snackbar
+          :timeout="500"
+          top color="primary"
+          v-model="snackbar"
+        >
+          <span class="ma-auto"> Allotment Done!</span>
+           
+        </v-snackbar>
     <div class="d-flex">
         <h2 class=" grey--text"> Allotments </h2>
         <v-spacer></v-spacer>
-        <AllotItem class="mx-1" @inventoryUpdated="snackbar=true" />
+        <AllotItem v-if="!snackbar" class="mx-1" @allotmentSuccessful="snackbar=true" />
         
     </div>
        
@@ -23,6 +31,11 @@ export default {
     components :{
         AllotmentTable,
         AllotItem
+    },
+    data : function(){
+      return {
+        snackbar:false
+      }
     }
     
     

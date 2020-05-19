@@ -33,7 +33,7 @@
                         <v-text-field label="Description" v-model="obj.desc" required></v-text-field>
                         </v-col>
                         <v-col class="d-flex" :cols="4">
-                            <v-text-field label="unique ID"  :value="owner.name+'-'+obj.manufacturer+'-'+obj.desc"   required></v-text-field>
+                            <v-text-field label="unique ID"  disabled :value="owner.name+'-'+obj.manufacturer+'-'+obj.desc"   required></v-text-field>
                         </v-col>
                         <v-col :cols="1"  class=" offset-1 ">
                             <a flat color="transparent grey--text " @click="object.data = removeObject(object.data,obj)"><v-icon class="mt-4">close</v-icon> </a>
